@@ -24,6 +24,18 @@
             <source>UserManual.pdf</source>
             <outputDirectory>/</outputDirectory>
         </file>
+        <file>
+            <source>${project.build.scriptSourceDirectory}/apl-db-attachments</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>0775</fileMode>
+        </file>
+        <file>
+            <source>${project.build.scriptSourceDirectory}/apl-db-attachments.bat</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>0775</fileMode>
+        </file>
     </files>
     <dependencySets>
         <dependencySet>
