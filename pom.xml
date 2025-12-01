@@ -5,7 +5,7 @@
 
     <groupId>com.apl</groupId>
     <artifactId>APLDBAttachments</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 
     <properties>
         <!-- java properties -->
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>com.bmc.arsys</groupId>
             <artifactId>arapi</artifactId>
-            <version>8.1-build001</version>
+            <version>8.1-slim</version>
         </dependency>
     </dependencies>
 

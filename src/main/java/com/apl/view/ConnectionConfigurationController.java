@@ -208,6 +208,9 @@ public class ConnectionConfigurationController {
         serverDetails.setVisible(false);
         oracleSID.setVisible(false);
         oracleService.setVisible(false);
+
+        dbTypeComboBox.getSelectionModel().selectFirst();
+        handleDBType();
     }
 
     private void openAlert(AlertType alertType, String title, String header, String content) {

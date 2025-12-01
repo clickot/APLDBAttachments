@@ -3,10 +3,10 @@
   <groupId>com.bmc.arsys</groupId>
   <artifactId>arapi</artifactId>
   <versioning>
-    <release>8.1-build001</release>
+    <release>8.1-slim</release>
     <versions>
-      <version>8.1-build001</version>
+       <version>8.1-slim</version>
     </versions>
-    <lastUpdated>20251129133523</lastUpdated>
+    <lastUpdated>20251130165358</lastUpdated>
   </versioning>
 </metadata>
