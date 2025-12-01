@@ -1,4 +1,4 @@
-# apl-db-attachments
+# APLDBAttachments
 
 Java tool to extract ticket attachments from a BMC Remedy Database. 
 

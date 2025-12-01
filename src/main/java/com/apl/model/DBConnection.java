@@ -5,7 +5,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.LinkedHashMap;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DBConnection {
-    private static final Logger logger = Logger.getLogger(MainApp.class);
+    private static final Logger logger = LogManager.getLogger(DBConnection.class);
 
     private String connectionString = "";
     private Connection dbConn = null;

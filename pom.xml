@@ -5,7 +5,7 @@
 
     <groupId>com.apl</groupId>
     <artifactId>APLDBAttachments</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
 
     <properties>
         <!-- java properties -->
@@ -15,8 +15,11 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>${java.encoding}</project.build.sourceEncoding>
         <!-- third party lib versions -->
-        <log4j.version>1.2.17</log4j.version>
-        <ojdbc.version>12.2.0.1</ojdbc.version>
+        <commons-configuration.version>2.13.0</commons-configuration.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
+        <commons-lang.version>3.20.0</commons-lang.version>
+        <log4j.version>2.24.3</log4j.version>
+        <ojdbc.version>19.28.0.0</ojdbc.version>
         <postgresql.version>42.7.5</postgresql.version>
         <mssql-jdbc.version>11.2.3.jre17</mssql-jdbc.version>
         <!-- maven plugin versions-->
@@ -35,9 +38,29 @@
 
     <dependencies>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
             <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+            <version>${commons-configuration.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons-beanutils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang.version}</version>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>

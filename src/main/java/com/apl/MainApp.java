@@ -6,8 +6,6 @@ import com.apl.model.Field;
 import com.apl.model.Form;
 import com.apl.view.MainOverviewController;
 import com.apl.view.RootLayoutController;
-import com.bmc.thirdparty.org.apache.commons.configuration.ConfigurationException;
-import com.bmc.thirdparty.org.apache.commons.configuration.PropertiesConfiguration;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -17,13 +15,19 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,21 +35,38 @@ import java.util.Map;
 
 public class MainApp extends Application {
 
-    public static boolean cli = false;
-    public static PropertiesConfiguration config = null;
-
-    private static final String configFile = "APLDBAttachments.properties";
-    private static final String log4jFile = "log4j.properties";
+    public static final String CONFIG_FILE = "APLDBAttachments.properties";
+    public static final String LOG4J_FILE = "log4j.properties";
+    public static final String SYSTEM_PROP_LOG4J_FILE = "log4j2.configurationFile";
+    public static boolean cli;
 
     static {
-        PropertyConfigurator.configure(log4jFile);
+        System.setProperty(SYSTEM_PROP_LOG4J_FILE, LOG4J_FILE);
     }
-    private static final Logger logger = Logger.getLogger(MainApp.class);
+
+    private static PropertiesConfiguration readConfigProperties() {
+        FileBasedConfigurationBuilder<FileBasedConfiguration> builder =
+                new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class).configure(
+                        new org.apache.commons.configuration2.builder.fluent.Parameters().properties()
+                                .setFileName(CONFIG_FILE)
+                                .setEncoding("UTF-8")
+                                .setBasePath(Paths.get("").toAbsolutePath().toString())
+                );
+        try {
+            return (PropertiesConfiguration) builder.getConfiguration();
+        } catch (ConfigurationException e) {
+            logger.error("Error opening config file '{}': {}", CONFIG_FILE, e.getMessage());
+            System.exit(1);
+        }
+        return null;
+    }
+
+    private static final Logger logger = LogManager.getLogger(MainApp.class);
+    private static final PropertiesConfiguration config = readConfigProperties();
 
     private static boolean formFolder = true;
     private static boolean entryIDFolder = false;
     private static boolean fieldNameFolder = false;
-    public static final String ver = "2.1";
     private static String whereClause;
     private MainOverviewController mainOverviewController;
     private Stage primaryStage;
@@ -81,14 +102,10 @@ public class MainApp extends Application {
         String formArray = null;
         String fieldArray = null;
 
-        try {
-            config = new PropertiesConfiguration();
-            config.setDelimiterParsingDisabled(true);
-            config.load(configFile);
-        } catch (ConfigurationException e) {
-            logger.error("Error opening config file: " + e.getMessage());
-            return;
-        }
+        String appName = config.getString("AppName");
+        String version = config.getString("Version");
+
+        logger.info(appName + " v" + version + " started.");
 
         if (args.length > 0) {
             userName = config.getString("UserName");
@@ -98,7 +115,7 @@ public class MainApp extends Application {
             formArray = config.getString("FormList");
             fieldArray = config.getString("FieldList");
             whereClause = config.getString("Where");
-            logger.info("APL DB Attachments v2.1");
+
             int i = 0;
 
             while (i < args.length && args[i].startsWith("-")) {
@@ -211,7 +228,7 @@ public class MainApp extends Application {
             logger.info("Starting Export with following configuration:");
             logger.info("Connecting to db using " + userName + " and connection string '" + connectionString + "'");
             logger.info("Exporting to directory '" + outputDir + "'");
-            if (formNameList.size() > 0) {
+            if (!formNameList.isEmpty()) {
                 logger.info("From the following forms:");
 
                 for (String formName : formNameList) {
@@ -221,7 +238,7 @@ public class MainApp extends Application {
                 logger.info("From all forms containing attachment data");
             }
 
-            if (fieldNameList.size() > 0) {
+            if (!fieldNameList.isEmpty()) {
                 logger.info("From the following fields:");
 
                 for (String fieldName : fieldNameList) {
@@ -260,13 +277,13 @@ public class MainApp extends Application {
             }
 
             for (String formName : formMap.keySet()) {
-                if (formNameList.contains(formName) || formNameList.size() == 0) {
+                if (formNameList.contains(formName) || formNameList.isEmpty()) {
                     logger.info("Starting processing of form '" + formName + "'");
                     Form form = formMap.get(formName);
 
                     for (Field field : form.getFieldList()) {
                         String fieldName = field.getName();
-                        if (fieldNameList.contains(fieldName) || fieldNameList.size() == 0) {
+                        if (fieldNameList.contains(fieldName) || fieldNameList.isEmpty()) {
                             logger.info("Starting processing of field '" + fieldName + "'");
                             String query = dbConn.getAttachmentRecordQuery(formMap, formName, fieldName, whereClause);
                             ObservableList<ATTRecord> attachmentRecordList = dbConn.getAttachmentRecords(
@@ -274,7 +291,7 @@ public class MainApp extends Application {
                             );
                             if (attachmentRecordList != null) {
                                 logger.info(attachmentRecordList.size() + " record(s) found to export");
-                                if (attachmentRecordList.size() > 0) {
+                                if (!attachmentRecordList.isEmpty()) {
                                     String output = processExport(attachmentRecordList, dbConn, true, new File(outputDir), formFolder, entryIDFolder, fieldNameFolder);
                                     if (output != null && !output.isEmpty()) {
                                         logger.error(output);
@@ -419,25 +436,22 @@ public class MainApp extends Application {
 
     public void saveConfig() {
         logger.info("Saving Configuration Settings");
-        String userName = this.mainOverviewController.getUserName();
+        String userName = mainOverviewController.getUserName();
         if (userName != null && !userName.isEmpty()) {
             config.setProperty("UserName", userName);
         }
-
-        String password = this.mainOverviewController.getPassword();
+        String password = mainOverviewController.getPassword();
         if (password != null && !password.isEmpty()) {
             config.setProperty("Password", password);
         }
-
-        String connectionString = this.mainOverviewController.getConnectionString();
+        String connectionString = mainOverviewController.getConnectionString();
         if (connectionString != null && !connectionString.isEmpty()) {
             config.setProperty("ConnectionString", connectionString);
         }
-
         try {
-            config.save("APLDBAttachments.properties");
-        } catch (ConfigurationException e) {
-            logger.error("Unable to update configuration file: " + e.getMessage(), e);
+            config.write(new FileWriter(CONFIG_FILE));
+        } catch (ConfigurationException | IOException e) {
+            logger.error("error in saving configuration file " + CONFIG_FILE, e);
         }
     }
 

@@ -12,12 +12,13 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public class RootLayoutController {
-    private static final Logger logger = Logger.getLogger(MainApp.class);
+    private static final Logger logger = LogManager.getLogger(RootLayoutController.class);
     @FXML
     private final MenuBar menuBar = new MenuBar();
     @FXML

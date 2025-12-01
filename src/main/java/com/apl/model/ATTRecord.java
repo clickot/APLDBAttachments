@@ -1,12 +1,12 @@
 package com.apl.model;
 
-import com.apl.MainApp;
 import com.bmc.arsys.arcompress.ARDecompressor;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.sql.ResultSet;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.zip.DataFormatException;
 
 public class ATTRecord {
-    private static final Logger logger = Logger.getLogger(MainApp.class);
+    private static final Logger logger = LogManager.getLogger(ATTRecord.class);
 
     public StringProperty entryID;
     public StringProperty fileName;
