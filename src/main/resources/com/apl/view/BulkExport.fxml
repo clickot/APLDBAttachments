@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="145.0" maxWidth="150.0" minHeight="145.0" minWidth="150.0" prefHeight="145.0" prefWidth="150.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apl.view.BulkExportController">
+   <children>
+      <Label text="Form" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
+      <RadioButton fx:id="formFolderRadio" layoutX="7.0" layoutY="17.0" mnemonicParsing="false" onAction="#handleFormSelection" selected="true" text="Folder" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="20.0">
+         <toggleGroup>
+            <ToggleGroup fx:id="formGroup" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="formFileRadio" layoutX="69.0" layoutY="15.0" mnemonicParsing="false" onAction="#handleFormSelection" text="File Name" toggleGroup="$formGroup" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="20.0" />
+      <Label layoutX="5.0" layoutY="38.0" text="Entry ID" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="40.0" />
+      <RadioButton fx:id="entryIDFolderRadio" layoutX="12.0" layoutY="55.0" mnemonicParsing="false" onAction="#handleEntryIDSelection" text="Folder" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="55.0">
+         <toggleGroup>
+            <ToggleGroup fx:id="entryGroup" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="entryIDFileRadio" layoutX="69.0" layoutY="55.0" mnemonicParsing="false" onAction="#handleEntryIDSelection" selected="true" text="File Name" toggleGroup="$entryGroup" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="55.0" />
+      <Label layoutX="1.0" layoutY="87.0" text="Field Name" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="75.0" />
+      <RadioButton fx:id="fieldNameFolderRadio" layoutX="8.0" layoutY="104.0" mnemonicParsing="false" onAction="#handleFieldNameSelection" text="Folder" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="90.0">
+         <toggleGroup>
+            <ToggleGroup fx:id="fieldGroup" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="fieldNameFileRadio" layoutX="65.0" layoutY="104.0" mnemonicParsing="false" onAction="#handleFieldNameSelection" selected="true" text="File Name" toggleGroup="$fieldGroup" AnchorPane.leftAnchor="70.0" AnchorPane.topAnchor="90.0" />
+      <Button layoutX="7.0" layoutY="115.0" mnemonicParsing="false" onAction="#handleOk" text="Ok" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="115.0" />
+      <Button layoutX="47.0" layoutY="115.0" mnemonicParsing="false" onAction="#handleCancel" text="Cancel" AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="115.0" />
+   </children>
+</AnchorPane>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane minHeight="250.0" prefHeight="700.0" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apl.view.RootLayoutController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu fx:id="fileMenu" mnemonicParsing="false" text="_File">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleLoadConfiguration" text="Load Previous Values">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="L" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#handleSaveConfiguration" text="Save Connection Values">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="buildConnectionString" mnemonicParsing="false" onAction="#handleBuildConnectionString" text="Build Connection String">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="B" control="ANY" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+              <MenuItem fx:id="close" mnemonicParsing="false" onAction="#handleClose" text="Close" />
+            </items>
+          </Menu>
+          <Menu fx:id="helpMenu" mnemonicParsing="false" text="_Help">
+            <items>
+              <MenuItem fx:id="about" mnemonicParsing="false" onAction="#handleAbout" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+</BorderPane>
