@@ -1,6 +1,7 @@
 package com.apl.model;
 
 public class Field {
+
     private Integer id;
     private String name;
 

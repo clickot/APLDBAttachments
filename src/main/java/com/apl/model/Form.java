@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Form {
+
     private List<Field> fieldList = new ArrayList<>();
     private int id;
     private int resolvedID;

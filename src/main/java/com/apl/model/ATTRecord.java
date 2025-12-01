@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.zip.DataFormatException;
 
 public class ATTRecord {
+
     private static final Logger logger = LogManager.getLogger(ATTRecord.class);
 
     public StringProperty entryID;
@@ -59,7 +60,7 @@ public class ATTRecord {
                     try {
                         bytes = arDecompressor.inflate();
                     } catch (DataFormatException e) {
-                        logger.error("Error Decompressing: " + e.getMessage());
+                        logger.error("Error Decompressing: {}", e.getMessage());
                         bytes = new byte[0];
                     }
                 } else {
@@ -105,6 +106,6 @@ public class ATTRecord {
     }
 
     public void setOriginalSize(int originalSize) {
-        this.originalSize = new ReadOnlyObjectWrapper(originalSize);
+        this.originalSize = new ReadOnlyObjectWrapper<>(originalSize);
     }
 }

@@ -19,7 +19,6 @@ import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,13 +66,13 @@ public class MainApp extends Application {
     private static boolean formFolder = true;
     private static boolean entryIDFolder = false;
     private static boolean fieldNameFolder = false;
-    private static String whereClause;
+
     private MainOverviewController mainOverviewController;
     private Stage primaryStage;
     private RootLayoutController rootController;
     private BorderPane rootLayout;
 
-    private static void giveSyntax() {
+    private static void printUsage() {
         System.out.println("java -jar APLDBAttachments.jar" + System.lineSeparator());
         System.out.println("All Command line parameters are optional, remembering if a parameter has a space, it must be surrounded by \"'s");
         System.out.println("-u: User name to connect to Database with");
@@ -95,17 +94,18 @@ public class MainApp extends Application {
     }
 
     public static void main(String[] args) {
+        String appName = config.getString("AppName");
+        String version = config.getString("Version");
+
+        logger.info("{} v{} started.", appName, version);
+
         String userName = null;
         String password = null;
         String connectionString = null;
         String outputDir = null;
         String formArray = null;
         String fieldArray = null;
-
-        String appName = config.getString("AppName");
-        String version = config.getString("Version");
-
-        logger.info(appName + " v" + version + " started.");
+        String whereClause = null;
 
         if (args.length > 0) {
             userName = config.getString("UserName");
@@ -128,7 +128,7 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             userName = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
@@ -136,7 +136,7 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             password = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
@@ -144,7 +144,7 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             connectionString = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
@@ -152,7 +152,7 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             outputDir = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
@@ -160,7 +160,7 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             formArray = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
@@ -168,7 +168,7 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             fieldArray = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
@@ -190,13 +190,13 @@ public class MainApp extends Application {
                         if (i < args.length) {
                             whereClause = args[i++];
                         } else {
-                            giveSyntax();
+                            printUsage();
                             System.exit(1);
                         }
                         break;
                     default:
                         System.out.println("Unknown parameter '" + arg + "'");
-                        giveSyntax();
+                        printUsage();
                         System.exit(1);
                 }
             }
@@ -226,8 +226,8 @@ public class MainApp extends Application {
             }
 
             logger.info("Starting Export with following configuration:");
-            logger.info("Connecting to db using " + userName + " and connection string '" + connectionString + "'");
-            logger.info("Exporting to directory '" + outputDir + "'");
+            logger.info("Connecting to db using {} and connection string '{}'", userName, connectionString);
+            logger.info("Exporting to directory '{}'", outputDir);
             if (!formNameList.isEmpty()) {
                 logger.info("From the following forms:");
 
@@ -249,26 +249,26 @@ public class MainApp extends Application {
             }
 
             if (whereClause != null && !whereClause.isEmpty()) {
-                logger.info("With the following where clause: " + whereClause);
+                logger.info("With the following where clause: {}", whereClause);
             }
 
             logger.info("With the following file name conventions:");
-            logger.info("Form Name as Folder: " + formFolder);
-            logger.info("Entry ID as Folder: " + entryIDFolder);
-            logger.info("Field Name as Folder: " + fieldNameFolder);
-            DBConnection dbConn = new DBConnection();
+            logger.info("Form Name as Folder: {}", formFolder);
+            logger.info("Entry ID as Folder: {}", entryIDFolder);
+            logger.info("Field Name as Folder: {}", fieldNameFolder);
 
+            DBConnection dbConn = new DBConnection();
             try {
                 dbConn.getConnection(connectionString, userName, password);
             } catch (SQLException e) {
-                logger.error("SQLException connecting to the DB: " + e.getMessage());
+                logger.error("SQLException connecting to the DB: {}", e.getMessage());
                 System.exit(1);
             }
 
             logger.info("Getting forms from server");
             Map<String, Form> formMap = dbConn.getFormData(formNameList);
-            logger.info("Total of " + formMap.size() + " form retrieved");
-            if (logger.getLevel() == Level.DEBUG) {
+            logger.info("Total of {} form retrieved", formMap.size());
+            if (logger.isDebugEnabled()) {
                 logger.debug("Complete list of forms that contain attachment fields");
 
                 for (String formName : formMap.keySet()) {
@@ -278,22 +278,22 @@ public class MainApp extends Application {
 
             for (String formName : formMap.keySet()) {
                 if (formNameList.contains(formName) || formNameList.isEmpty()) {
-                    logger.info("Starting processing of form '" + formName + "'");
+                    logger.info("Starting processing of form '{}'", formName);
                     Form form = formMap.get(formName);
 
                     for (Field field : form.getFieldList()) {
                         String fieldName = field.getName();
                         if (fieldNameList.contains(fieldName) || fieldNameList.isEmpty()) {
-                            logger.info("Starting processing of field '" + fieldName + "'");
+                            logger.info("Starting processing of field '{}'", fieldName);
                             String query = dbConn.getAttachmentRecordQuery(formMap, formName, fieldName, whereClause);
                             ObservableList<ATTRecord> attachmentRecordList = dbConn.getAttachmentRecords(
                                     query, form.getID(), form.getResolvedID(), field.getId(), formName, fieldName
                             );
                             if (attachmentRecordList != null) {
-                                logger.info(attachmentRecordList.size() + " record(s) found to export");
+                                logger.info("{} record(s) found to export", attachmentRecordList.size());
                                 if (!attachmentRecordList.isEmpty()) {
                                     String output = processExport(attachmentRecordList, dbConn, true, new File(outputDir), formFolder, entryIDFolder, fieldNameFolder);
-                                    if (output != null && !output.isEmpty()) {
+                                    if (!output.isEmpty()) {
                                         logger.error(output);
                                     }
 
@@ -322,22 +322,21 @@ public class MainApp extends Application {
             boolean fieldNameFolder
     ) {
         FileChooser fileChooser = new FileChooser();
-        String output = "";
-        File file = null;
+        StringBuilder output = new StringBuilder();
+        File file;
 
         for (ATTRecord record : selectedItems) {
             String fileName = record.getFileName().getValue();
             byte[] fileBytes = record.getBytes(dbConn);
             if (fileBytes == null) {
-                output = output
-                        + "Unable to get the file "
-                        + record.getEntryID().getValue()
-                        + ":"
-                        + record.getFieldName()
-                        + ":"
-                        + fileName
-                        + " from the DB server, it returned 0 bytes"
-                        + System.lineSeparator();
+                output.append("Unable to get the file ")
+                        .append(record.getEntryID().getValue())
+                        .append(":")
+                        .append(record.getFieldName())
+                        .append(":")
+                        .append(fileName)
+                        .append(" from the DB server, it returned 0 bytes")
+                        .append(System.lineSeparator());
             } else {
                 if (bulk) {
                     String saveFileFolder = "";
@@ -367,6 +366,7 @@ public class MainApp extends Application {
 
                     File f = new File(selectedDirectory.getAbsolutePath() + File.separator + saveFileFolder);
                     if (!f.exists()) {
+                        //noinspection ResultOfMethodCallIgnored
                         f.mkdirs();
                     }
 
@@ -383,21 +383,20 @@ public class MainApp extends Application {
                         fos.write(fileBytes);
                         fos.close();
                     } catch (IOException e) {
-                        output = output
-                                + "Error saving file: "
-                                + record.getEntryID().getValue()
-                                + ":"
-                                + record.getFieldName()
-                                + ":"
-                                + fileName
-                                + ": "
-                                + e.getMessage();
+                        output.append("Error saving file: ")
+                                .append(record.getEntryID().getValue())
+                                .append(":")
+                                .append(record.getFieldName())
+                                .append(":")
+                                .append(fileName)
+                                .append(": ")
+                                .append(e.getMessage());
                     }
                 }
             }
         }
 
-        return output;
+        return output.toString();
     }
 
     private static String stripNonOSValues(String s) {
@@ -423,7 +422,7 @@ public class MainApp extends Application {
             this.primaryStage.setScene(scene);
             this.primaryStage.show();
         } catch (IOException e) {
-            logger.error("error in initRootLayout: " + e.getMessage(), e);
+            logger.error("error in initRootLayout: {}", e.getMessage(), e);
         }
     }
 

@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 public class MainOverviewController {
+
     private static final Logger logger = LogManager.getLogger(MainOverviewController.class);
+
     @FXML
     private TextField connectionString = new TextField();
     private DBConnection dbConn = new DBConnection();

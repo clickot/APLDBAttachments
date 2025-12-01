@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DBConnection {
+
     private static final Logger logger = LogManager.getLogger(DBConnection.class);
 
     private String connectionString = "";
@@ -23,28 +24,25 @@ public class DBConnection {
 
     public ResultSet getAttachmentBytes(int formID, int fieldID, String entryID) {
         String query = "select c" + fieldID + " from b" + formID + "c" + fieldID + " where entryID = '" + entryID + "'";
-        logger.debug("Attachment SQL: " + query);
+        logger.debug("Attachment SQL: {}", query);
 
-        try {
-            Statement statement = this.dbConn.createStatement();
+        try (Statement statement = this.dbConn.createStatement()) {
             return statement.executeQuery(query);
         } catch (SQLException e) {
             if (!MainApp.cli) {
-                this.openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
+                openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
             }
-
-            logger.error("SQLException: " + e.getMessage());
-            return null;
+            logger.error("SQLException: {}", e.getMessage());
         }
+        return null;
     }
 
     public String getAttachmentRecordQuery(Map<String, Form> formMap, String formName, String fieldName, String whereClause) {
         String query = "";
-        int formID = 0;
-        int fieldID = 0;
-        Form form = null;
+        int formID;
+        int fieldID;
         if (formName != null && !formName.isEmpty()) {
-            form = formMap.get(formName);
+            Form form = formMap.get(formName);
             if (form.getID() == form.getResolvedID()) {
                 formID = form.getID();
             } else {
@@ -69,42 +67,40 @@ public class DBConnection {
                 }
 
                 return query;
-            } else {
-                return null;
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
     public ObservableList<ATTRecord> getAttachmentRecords(String query, int formID, int resolvedFormID, int fieldID, String formName, String fieldName) {
         ObservableList<ATTRecord> recordList = FXCollections.observableArrayList();
+        try (Statement statement = this.dbConn.createStatement()) {
+            try {
+                logger.debug("Query being executed: {}", query);
+                ResultSet resultSet = statement.executeQuery(query);
 
-        try {
-            Statement statement = this.dbConn.createStatement();
-            logger.debug("Query being executed: " + query);
-            ResultSet resultSet = statement.executeQuery(query);
-
-            while (resultSet.next()) {
-                String entryID = resultSet.getString(1);
-                String fileName = resultSet.getString(2);
-                int fileSize = resultSet.getInt(3);
-                if (fileName != null && !fileName.isEmpty() && fileSize > 0) {
-                    ATTRecord attRecord = new ATTRecord(entryID, fileName, fileSize, formID, resolvedFormID, fieldID, formName, fieldName);
-                    recordList.add(attRecord);
+                while (resultSet.next()) {
+                    String entryID = resultSet.getString(1);
+                    String fileName = resultSet.getString(2);
+                    int fileSize = resultSet.getInt(3);
+                    if (fileName != null && !fileName.isEmpty() && fileSize > 0) {
+                        ATTRecord attRecord = new ATTRecord(entryID, fileName, fileSize, formID, resolvedFormID, fieldID, formName, fieldName);
+                        recordList.add(attRecord);
+                    }
                 }
-            }
 
-            resultSet.close();
-            return recordList;
+                resultSet.close();
+                return recordList;
+            } catch (SQLException e) {
+                if (!MainApp.cli) {
+                    openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
+                }
+                logger.error("SQLException: {}", e.getMessage(), e);
+            }
         } catch (SQLException e) {
-            if (!MainApp.cli) {
-                this.openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
-            }
-
-            logger.error("SQLException: " + e.getMessage(), e);
-            return null;
+            logger.error("SQLException: {}", e.getMessage(), e);
         }
+        return null;
     }
 
     public void getConnection(String connectionString, String userName, String pass) throws SQLException {
@@ -121,23 +117,23 @@ public class DBConnection {
                 + formName
                 + "' and f.fOption < 4"
                 + " order by f.fieldName";
-        logger.debug("Issuing field query: " + query);
+        logger.debug("Issuing field query: {}", query);
 
         try {
             return this.dbConn.createStatement().executeQuery(query);
         } catch (SQLException e) {
             if (!MainApp.cli) {
-                this.openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
+                openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
             }
 
-            logger.error("SQLException: " + e.getMessage(), e);
+            logger.error("SQLException: {}", e.getMessage(), e);
             return null;
         }
     }
 
     public Map<String, Form> getFormData(List<String> formNameList) {
         String query = "select distinct a.name, a.schemaid, a.resolvedschemaid from arschema a inner join field f on a.schemaid = f.schemaId inner join field_attach fa on a.schemaId = fa.schemaId and f.fieldId = fa.fieldId where a.schemaType = 1 and f.fOption < 4 ";
-        if (formNameList != null && formNameList.size() > 0) {
+        if (formNameList != null && !formNameList.isEmpty()) {
             String s = "";
 
             for (String formName : formNameList) {
@@ -145,22 +141,20 @@ public class DBConnection {
             }
 
             s = s.substring(1);
-            query = query + "and a.name in (" + s + ")";
+            query += "and a.name in (" + s + ")";
         }
 
         query = query + " order by a.name";
-        logger.debug("Issuing form query: " + query);
-        Statement statement = null;
+        logger.debug("Issuing form query: {}", query);
 
-        try {
-            statement = this.dbConn.createStatement();
+        try (Statement statement = this.dbConn.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
             Map<String, Form> formMap = new LinkedHashMap<>();
             int formCount = 0;
 
             while (true) {
                 if (!resultSet.next()) {
-                    logger.debug("Form Query returned " + formCount + " records");
+                    logger.debug("Form Query returned {} records", formCount);
                     return formMap;
                 }
 
@@ -169,10 +163,10 @@ public class DBConnection {
                 int formID = resultSet.getInt(2);
                 int resolvedFormID = resultSet.getInt(3);
                 Form form = new Form(formName, formID, resolvedFormID);
-                ResultSet fieldResults = this.getFieldData(formName);
+                ResultSet fieldResults = getFieldData(formName);
                 if (fieldResults == null) {
                     if (!MainApp.cli) {
-                        this.openAlert(AlertType.ERROR, "Error", null, "Unable to get field list");
+                        openAlert(AlertType.ERROR, "Error", null, "Unable to get field list");
                     }
 
                     logger.error("Unable to get field list");
@@ -189,12 +183,12 @@ public class DBConnection {
                         form.addField(fieldName, fieldID);
                     }
 
-                    logger.debug("Field Query returned " + fieldCount + " records");
+                    logger.debug("Field Query returned {} records", fieldCount);
                 } catch (SQLException e) {
                     if (!MainApp.cli) {
-                        this.openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
+                        openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
                     }
-                    logger.error("SQL Exception while getting field Results:" + e.getMessage(), e);
+                    logger.error("SQL Exception while getting field Results:{}", e.getMessage(), e);
                     break;
                 }
 
@@ -202,20 +196,10 @@ public class DBConnection {
             }
         } catch (SQLException e) {
             if (!MainApp.cli) {
-                this.openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
+                openAlert(AlertType.ERROR, "Error", null, "SQL Failed: " + e.getMessage());
             }
-
-            logger.error("SQLException: " + e.getMessage(), e);
-            return null;
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                }
-            }
+            logger.error("SQLException: {}", e.getMessage(), e);
         }
-
         return null;
     }
 

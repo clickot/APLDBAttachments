@@ -12,57 +12,59 @@ import javafx.stage.Window;
 import java.util.stream.Stream;
 
 public class ComboBoxAutoComplete<T> {
+
     private final ComboBox<T> cmb;
-    String filter = "";
     private final ObservableList<T> originalItems;
+    private String filter;
 
     public ComboBoxAutoComplete(ComboBox<T> cmb) {
         this.cmb = cmb;
         this.originalItems = FXCollections.observableArrayList(cmb.getItems());
-        cmb.setTooltip(new Tooltip());
-        cmb.setOnKeyPressed(this::handleOnKeyPressed);
-        cmb.setOnHidden(this::handleOnHiding);
+        this.cmb.setTooltip(new Tooltip());
+        this.cmb.setOnKeyPressed(this::handleOnKeyPressed);
+        this.cmb.setOnHidden(this::handleOnHiding);
+        this.filter = "";
     }
 
     public void handleOnKeyPressed(KeyEvent e) {
         ObservableList<T> filteredList = FXCollections.observableArrayList();
         KeyCode code = e.getCode();
         if (code.isLetterKey()) {
-            this.filter = this.filter + e.getText();
+            filter = filter + e.getText();
         }
 
-        if (code == KeyCode.BACK_SPACE && this.filter.length() > 0) {
-            this.filter = this.filter.substring(0, this.filter.length() - 1);
-            this.cmb.getItems().setAll(this.originalItems);
+        if (code == KeyCode.BACK_SPACE && !filter.isEmpty()) {
+            filter = filter.substring(0, filter.length() - 1);
+            cmb.getItems().setAll(originalItems);
         }
 
         if (code == KeyCode.ESCAPE) {
-            this.filter = "";
+            filter = "";
         }
 
-        if (this.filter.length() == 0) {
-            filteredList = this.originalItems;
-            this.cmb.getTooltip().hide();
+        if (filter.isEmpty()) {
+            filteredList = originalItems;
+            cmb.getTooltip().hide();
         } else {
-            Stream<T> itens = this.cmb.getItems().stream();
-            String txtUsr = this.filter.toLowerCase();
+            Stream<T> itens = cmb.getItems().stream();
+            String txtUsr = filter.toLowerCase();
             itens.filter(el -> el.toString().toLowerCase().contains(txtUsr)).forEach(filteredList::add);
-            this.cmb.getTooltip().setText(txtUsr);
-            Window stage = this.cmb.getScene().getWindow();
-            double posX = stage.getX() + this.cmb.localToScene(this.cmb.getBoundsInLocal()).getMinX();
-            double posY = stage.getY() + this.cmb.localToScene(this.cmb.getBoundsInLocal()).getMinY();
-            this.cmb.getTooltip().show(stage, posX, posY);
-            this.cmb.show();
+            cmb.getTooltip().setText(txtUsr);
+            Window stage = cmb.getScene().getWindow();
+            double posX = stage.getX() + cmb.localToScene(cmb.getBoundsInLocal()).getMinX();
+            double posY = stage.getY() + cmb.localToScene(cmb.getBoundsInLocal()).getMinY();
+            cmb.getTooltip().show(stage, posX, posY);
+            cmb.show();
         }
 
-        this.cmb.getItems().setAll(filteredList);
+        cmb.getItems().setAll(filteredList);
     }
 
     public void handleOnHiding(Event e) {
-        this.filter = "";
-        this.cmb.getTooltip().hide();
-        T s = this.cmb.getSelectionModel().getSelectedItem();
-        this.cmb.getItems().setAll(this.originalItems);
-        this.cmb.getSelectionModel().select(s);
+        filter = "";
+        cmb.getTooltip().hide();
+        T s = cmb.getSelectionModel().getSelectedItem();
+        cmb.getItems().setAll(originalItems);
+        cmb.getSelectionModel().select(s);
     }
 }

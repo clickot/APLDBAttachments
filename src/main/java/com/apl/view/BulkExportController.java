@@ -5,6 +5,12 @@ import javafx.scene.control.RadioButton;
 import javafx.stage.Stage;
 
 public class BulkExportController {
+
+    private Stage dialogStage;
+    private boolean okClicked = false;
+    private boolean formFolder = true;
+    private boolean entryIDFolder = false;
+    private boolean fieldNameFolder = false;
     @FXML
     private RadioButton formFolderRadio = new RadioButton();
     @FXML
@@ -17,15 +23,9 @@ public class BulkExportController {
     private RadioButton fieldNameFolderRadio = new RadioButton();
     @FXML
     private RadioButton fieldNameFileRadio = new RadioButton();
-    private Stage dialogStage;
-    private boolean okClicked = false;
-    private boolean formFolder = true;
-    private boolean entryIDFolder = false;
-    private boolean fieldNameFolder = false;
 
     @FXML
-    private void initialize() {
-    }
+    private void initialize() {}
 
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;

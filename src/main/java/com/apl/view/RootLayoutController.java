@@ -18,7 +18,9 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 public class RootLayoutController {
+
     private static final Logger logger = LogManager.getLogger(RootLayoutController.class);
+
     @FXML
     private final MenuBar menuBar = new MenuBar();
     @FXML
